@@ -1,10 +1,14 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
+import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 export default function Projects() {
   const filters = ['All', 'Fintech', 'E-commerce', 'AI & Data', 'Enterprise'];
   
-  const projects = [
+  const initialProjects = [
     {
       title: 'Nexus Banking Ecosystem',
       role: 'Lead Product Designer',
@@ -39,6 +43,27 @@ export default function Projects() {
       isFull: true
     }
   ];
+  
+  const [projects, setProjects] = useState(initialProjects);
+
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'projects'));
+        const fetchedData: any[] = [];
+        querySnapshot.forEach((doc) => {
+          fetchedData.push({ id: doc.id, ...doc.data() });
+        });
+        // Nếu có dữ liệu trên Firebase thì dùng, nếu không thì hiện dữ liệu gốc mẫu
+        if (fetchedData.length > 0) {
+          setProjects(fetchedData);
+        }
+      } catch (error) {
+        console.error("Lỗi lấy dự án từ Firebase:", error);
+      }
+    }
+    fetchProjects();
+  }, []);
 
   return (
     <motion.div
@@ -70,7 +95,7 @@ export default function Projects() {
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-y-24 gap-x-12">
         {projects.map((p, i) => (
-          <div key={i} className={`${p.cols} group cursor-pointer`}>
+          <Link to={p.id ? `/project/${p.id}` : '#'} key={i} className={`${p.cols} group cursor-pointer block`}>
             {p.image ? (
               <>
                 <div className={`overflow-hidden bg-surface-container mb-6 relative ${p.isFull ? 'aspect-[21/9]' : p.cols.includes('md:col-span-8') ? 'aspect-[16/9]' : 'aspect-[4/5]'}`}>
@@ -97,11 +122,25 @@ export default function Projects() {
                 </div>
               </>
             ) : (
-              <p className="text-xs text-on-surface-variant leading-loose italic">
-                {p.quote}
-              </p>
+                <div className={`flex flex-col md:flex-row justify-between items-start md:items-end bg-surface-container p-8 ${p.isFull ? 'h-full grid md:grid-cols-2 gap-8' : 'aspect-[4/5] gap-4'}`}>
+                  <div>
+                    <h3 className={`font-headline font-bold mb-2 ${p.isFull ? 'text-4xl' : 'text-3xl'}`}>{p.title || 'Dự án (Không Dữ Liệu)'}</h3>
+                    <p className="font-body text-sm text-on-surface-variant uppercase tracking-widest">{p.role}</p>
+                    {p.quote && (
+                      <p className="text-xs text-on-surface-variant leading-loose italic mt-4 border-l-2 border-primary/20 pl-4">
+                        {p.quote}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex justify-between w-full md:w-auto md:justify-end items-center gap-12 mt-auto">
+                    <span className="font-headline italic text-2xl text-outline-variant">{p.year}</span>
+                    <div className="h-12 w-12 border border-stone-200 flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all">
+                       <ArrowUpRight size={20} />
+                    </div>
+                  </div>
+                </div>
             )}
-          </div>
+          </Link>
         ))}
       </div>
     </motion.div>

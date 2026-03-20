@@ -1,14 +1,19 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 
 export default function About() {
-  const projects = [
+  const [description, setDescription] = useState('With over <span class="text-on-surface font-semibold">8+ years of experience</span> crafting high-performance digital ecosystems across Fintech, AI-driven platforms, and E-commerce.');
+
+  const initialProjects = [
     {
       id: 'alpha',
       title: 'Alpha Banking Core',
       description: 'Global transaction engine for decentralized finance.',
-      tag: 'Fintech',
+      field: 'Fintech',
       color: '#0041c8',
       image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBaGAp7VjoVQW0fjLB4A816SwCXd_gLpXj42mk9TN_v-QjF-zS8Gf7pCU2aEUDiPEqNSWLC8tQeSTIM8qNrVHQleswYGqH9-tbdfbci3Kxt164XKu75opYQv6wlGHGSzGqI2yS6gM9gQOjucKJRxYELKMSPzg2OAKTGjmZMspzoo1U3JjLYV1zcKa3woMKnNygvN0vjsSsIfrIqk4DdSSQvahLsHqI6m-35E5eUIpLIlsyg9aVsz7FOJ1-92WrBucicWvHF6mdEXg'
     },
@@ -16,7 +21,7 @@ export default function About() {
       id: 'neural',
       title: 'Neural Workspace',
       description: 'An AI-powered collaborative design environment.',
-      tag: 'Artificial Intelligence',
+      field: 'Artificial Intelligence',
       color: '#1a1c1c',
       image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA0gCiJblkd8T6c59a80MNPphp_ypi7-WH5MzU8vtFOA_UmLT8EHdhmSBvQ4ullOGo0N-5sWEg4idlP9LxQIwscWeZ3LiGoVOEPBq-yj92iFXLFl05D7sa_cXuF1yrSkIfm26R0SnED4LtwrfyDQfLAWhKRxCXrakXqPMWLUchx6V-Kjgl4pdR__Jd0xPIao0eVIdjFbvMT42c_psl0O02MO0NhblVx7ySC1zhDxBbh115fVLZkabS1iT-z8MMyFHBEN2DJXaus9w'
     },
@@ -24,7 +29,7 @@ export default function About() {
       id: 'luxe',
       title: 'Luxe Collective',
       description: 'Editorial shopping experience for luxury curation.',
-      tag: 'E-commerce',
+      field: 'E-commerce',
       color: '#e67e22',
       image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDkkJbrdIFghxpIL22wc0hTJfzKUvhww-WZF4qdZ5sepn0k71QNED8Rio5sHinNAK_fddn1ay86SfxhnVaxKJCc-aMvSX6F3KkBhIedzHsBzUOVSw0wZW7jx2W1_FWHtuZJfVad7Y29TlY7HhUXW5D6k4EhhxsNw3YDtwGltef-dNeEM1i9b-MNGRCiT7oG_-qsaX0RG9IcXzbrwmvsln2C_GHBdH0SP0y64lgiKnlah32YRk1S4yFFW8eVOBGNckMKSK-FNzzyow'
     },
@@ -32,11 +37,41 @@ export default function About() {
       id: 'fleet',
       title: 'FleetFlow Ops',
       description: 'Real-time supply chain management and visibility.',
-      tag: 'Logistics',
+      field: 'Logistics',
       color: '#27ae60',
       image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCxwU_a3BGilMwpYYx7LLZgQnUYxpzU34OPfuwza16_gR42ZflpddgaYI79A7m8cj6xEEKD8PMJCMLHxwn4iE_iT5xVeFhZFo3hQfzUH5l3LbVuF_VrEu7DsGkUL2eeynM-dO8vzX4apdL3RzzKznASyKL9gptEhxrR5DlJvGhI1BYaWclJHQc24QQpWy6MDSczPaqH6UzFyr6HYm7r9EWicZVC5IR6s8avBd3_0z0OfmvfwL6AL-2YD8J7PYDV4L1KYnfckgsZMQ'
     }
   ];
+
+  const [featuredProjects, setFeaturedProjects] = useState<any[]>(initialProjects);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const docRef = doc(db, 'content', 'about');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data().description) {
+          setDescription(docSnap.data().description);
+        }
+
+        const querySnapshot = await getDocs(collection(db, 'projects'));
+        const fetchedFeatured: any[] = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.featured) {
+            fetchedFeatured.push({ id: doc.id, ...data });
+          }
+        });
+        
+        if (fetchedFeatured.length > 0) {
+          setFeaturedProjects(fetchedFeatured.slice(0, 4));
+        }
+      } catch (error) {
+        console.error("Lỗi lấy dữ liệu trang chủ:", error);
+      }
+    }
+    loadData();
+  }, []);
 
   return (
     <motion.div
@@ -57,9 +92,10 @@ export default function About() {
           </motion.h1>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
             <div className="md:col-span-8">
-              <p className="text-2xl md:text-3xl font-body font-light text-on-surface-variant leading-relaxed">
-                With over <span className="text-on-surface font-semibold">8+ years of experience</span> crafting high-performance digital ecosystems across Fintech, AI-driven platforms, and E-commerce.
-              </p>
+              <p 
+                className="text-2xl md:text-3xl font-body font-light text-on-surface-variant leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: description }}
+              />
             </div>
             <div className="md:col-span-4 flex flex-col gap-4">
               <div className="h-px bg-outline-variant/30 w-full"></div>
@@ -79,13 +115,13 @@ export default function About() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-24">
-          {projects.map((project, index) => (
+          {featuredProjects.map((project, index) => (
             <Link
               key={project.id}
-              to={project.id === 'alpha' ? '/case-study/nexus' : '#'}
+              to={[`alpha`, `neural`, `luxe`, `fleet`].includes(project.id) ? '#' : `/project/${project.id}`}
               className={`group cursor-pointer ${index % 2 !== 0 ? 'md:mt-32' : ''}`}
             >
-              <div className="aspect-[4/5] mb-8 overflow-hidden relative" style={{ backgroundColor: project.color }}>
+              <div className="aspect-[4/5] mb-8 overflow-hidden relative" style={{ backgroundColor: project.color || '#e5e5e5' }}>
                 <img
                   src={project.image}
                   alt={project.title}
@@ -94,7 +130,7 @@ export default function About() {
                 />
                 <div className="absolute bottom-8 left-8">
                   <span className="bg-white text-stone-900 px-4 py-1 text-[10px] font-bold uppercase tracking-widest">
-                    {project.tag}
+                    {project.field}
                   </span>
                 </div>
               </div>
