@@ -5,9 +5,9 @@ export default function Navbar() {
   const location = useLocation();
 
   const navLinks = [
+    { name: 'Về tôi', path: '/' },
     { name: 'Dự án', path: '/projects' },
     { name: 'Kỹ năng', path: '/skills' },
-    { name: 'Về tôi', path: '/' },
   ];
 
   return (

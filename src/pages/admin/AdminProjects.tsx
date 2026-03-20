@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 type FieldType = 'text' | 'textarea' | 'image';
 
@@ -330,7 +332,9 @@ export default function AdminProjects() {
                               <div>
                                 <label className="block text-[10px] font-bold uppercase tracking-widest text-primary mb-1">Giá Trị Nội Dung</label>
                                 {field.type === 'textarea' ? (
-                                  <textarea rows={3} className="w-full border border-primary/30 p-2 text-sm focus:outline-none rounded focus:border-primary bg-white" value={field.value} onChange={e => updateField(block.id, field.id, 'value', e.target.value)} placeholder="Nhập đoạn văn bản ở đây..." />
+                                  <div className="bg-white [&_.ql-container]:min-h-[100px] [&_.ql-container]:text-sm">
+                                    <ReactQuill theme="snow" value={field.value} onChange={val => updateField(block.id, field.id, 'value', val)} placeholder="Nhập đoạn văn bản (hỗ trợ in đậm, nghiêng, list)..." />
+                                  </div>
                                 ) : (
                                   <input type="text" className="w-full border border-primary/30 p-2 text-sm focus:outline-none rounded focus:border-primary bg-white" value={field.value} onChange={e => updateField(block.id, field.id, 'value', e.target.value)} placeholder={field.type === 'image' ? 'Nhập đường dẫn URL ảnh...' : 'Nhập nội dung ngắn...' } />
                                 )}

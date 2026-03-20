@@ -152,17 +152,16 @@ export default function ProjectDetail() {
                           </div>
                         )}
 
-                        {/* Textarea Layout */}
+                        {/* Textarea Layout (Rich Text) */}
                         {field.type === 'textarea' && (
                           <div className="space-y-4">
                             {field.name && (
                               <h4 className="text-sm font-bold uppercase tracking-widest text-primary mb-4">{field.name}</h4>
                             )}
-                            {field.value.split('\n').map((paragraph, pIdx) => (
-                              <p key={pIdx} className="font-headline text-lg leading-relaxed text-on-surface-variant">
-                                {paragraph}
-                              </p>
-                            ))}
+                            <div 
+                              className="font-headline text-lg leading-relaxed text-on-surface-variant [&>p]:mb-6 [&>h1]:text-4xl [&>h1]:font-bold [&>h1]:mb-6 [&>h1]:text-on-surface [&>h2]:text-3xl [&>h2]:font-bold [&>h2]:mb-6 [&>h2]:text-on-surface [&>h3]:text-2xl [&>h3]:font-bold [&>h3]:mb-4 [&>ul]:list-disc [&>ul]:ml-6 [&>ul]:mb-6 [&>ul>li]:mb-2 [&>ol]:list-decimal [&>ol]:ml-6 [&>ol]:mb-6 [&>ol>li]:mb-2 [&>a]:text-primary [&>a]:underline [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-xl"
+                              dangerouslySetInnerHTML={{ __html: field.value }}
+                            />
                           </div>
                         )}
 
